@@ -1,0 +1,25 @@
+#!/bin/bash
+case $1 in
+    heavy)
+        if [[ $2 == "on" ]]; then
+            touch /tmp/nbfc-heavy
+            echo "Modo Heavy ACTIVADO (Umbral: 55°C)"
+        else
+            rm -f /tmp/nbfc-heavy
+            echo "Modo Heavy DESACTIVADO (Umbral: 65°C)"
+        fi
+        ;;
+    status)
+        TEMP=$(cat /sys/class/thermal/thermal_zone*/temp | sort -nr | head -n1 | cut -c1-2)
+        HEAVY="OFF"
+        [[ -f "/tmp/nbfc-heavy" ]] && HEAVY="ON"
+        echo -e "TEMPERATURA\tMODO_HEAVY"
+        echo -e "${TEMP}°C\t\t${HEAVY}" | column -t
+        ;;
+    logs)
+        journalctl --user -u nbfc-guardian.service -n 20 --no-pager
+        ;;
+    *)
+        echo "Uso: nbfc-pro {heavy on|off / status / logs}"
+        ;;
+esac

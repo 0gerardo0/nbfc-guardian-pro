@@ -1,0 +1,6 @@
+#!/bin/bash
+# Ejecuta la app con límites de memoria física (cgroups) y silencia logs de Wayland
+systemd-run --user --scope \
+    -p MemoryMax=4G \
+    -p MemoryHigh=3.5G \
+    /opt/antigravity/antigravity --no-sandbox --ozone-platform-hint=auto "$@" 2>/dev/null
