@@ -1,0 +1,11 @@
+[Unit]
+Description=NBFC Guardian Pro
+After=graphical-session.target
+
+[Service]
+ExecStart=/usr/local/bin/nbfc-guardian.sh
+Restart=always
+KillMode=process
+
+[Install]
+WantedBy=default.target

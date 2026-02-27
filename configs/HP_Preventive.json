@@ -1,0 +1,62 @@
+{
+  "NotebookModel": "HP_Preventive",
+  "Author": "Gemini-CLI-Assistant",
+  "EcPollInterval": 80,
+  "ReadWriteWords": false,
+  "CriticalTemperature": 92,
+  "FanConfigurations": [
+    {
+      "ReadRegister": 17,
+      "WriteRegister": 20,
+      "MinSpeedValue": 20,
+      "MaxSpeedValue": 59,
+      "IndependentReadMinMaxValues": false,
+      "MinSpeedValueRead": 0,
+      "MaxSpeedValueRead": 0,
+      "ResetRequired": true,
+      "FanSpeedResetValue": 0,
+      "FanDisplayName": "CPU Fan",
+      "TemperatureThresholds": [
+        {
+          "UpThreshold": 0,
+          "DownThreshold": 0,
+          "FanSpeed": 0.0
+        },
+        {
+          "UpThreshold": 35,
+          "DownThreshold": 25,
+          "FanSpeed": 40.0
+        },
+        {
+          "UpThreshold": 45,
+          "DownThreshold": 35,
+          "FanSpeed": 70.0
+        },
+        {
+          "UpThreshold": 55,
+          "DownThreshold": 45,
+          "FanSpeed": 100.0
+        }
+      ],
+      "FanSpeedPercentageOverrides": [
+        {
+          "FanSpeedPercentage": 100,
+          "FanSpeedValue": 59,
+          "TargetOperation": "ReadWrite"
+        }
+      ]
+    }
+  ],
+  "RegisterWriteConfigurations": [
+    {
+      "WriteMode": "Set",
+      "WriteOccasion": "OnInitialization",
+      "Register": 15,
+      "Value": 8,
+      "ResetRequired": true,
+      "ResetValue": 5,
+      "ResetWriteMode": "Set",
+      "Description": "Override Manual Control"
+    }
+  ]
+}
