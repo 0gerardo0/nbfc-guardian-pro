@@ -3,23 +3,59 @@ case $1 in
     heavy)
         if [[ $2 == "on" ]]; then
             touch /tmp/nbfc-heavy
+            rm -f /tmp/nbfc-reposo /tmp/nbfc-pasivo
             echo "Modo Heavy ACTIVADO (Umbral: 55°C)"
         else
             rm -f /tmp/nbfc-heavy
             echo "Modo Heavy DESACTIVADO (Umbral: 65°C)"
         fi
         ;;
+    pasivo)
+        if [[ $2 == "on" ]]; then
+            touch /tmp/nbfc-pasivo
+            rm -f /tmp/nbfc-heavy /tmp/nbfc-reposo
+            echo "Modo Pasivo ACTIVADO (Sin reinicios >60°C, cooldown 180s)"
+        else
+            rm -f /tmp/nbfc-pasivo
+            echo "Modo Pasivo DESACTIVADO"
+        fi
+        ;;
+    reposo)
+        if [[ $2 == "on" ]]; then
+            touch /tmp/nbfc-reposo
+            rm -f /tmp/nbfc-heavy /tmp/nbfc-pasivo
+            echo "Modo Reposo ACTIVADO (Ventilador suave, sin reinicios)"
+        else
+            rm -f /tmp/nbfc-reposo
+            echo "Modo Reposo DESACTIVADO"
+        fi
+        ;;
     status)
         TEMP=$(cat /sys/class/thermal/thermal_zone*/temp | sort -nr | head -n1 | cut -c1-2)
         HEAVY="OFF"
+        PASIVO="OFF"
+        REPOSO="OFF"
         [[ -f "/tmp/nbfc-heavy" ]] && HEAVY="ON"
-        echo -e "TEMPERATURA\tMODO_HEAVY"
-        echo -e "${TEMP}°C\t\t${HEAVY}" | column -t
+        [[ -f "/tmp/nbfc-pasivo" ]] && PASIVO="ON"
+        [[ -f "/tmp/nbfc-reposo" ]] && REPOSO="ON"
+        echo -e "TEMP\tHEAVY\tPASIVO\tREPOSO"
+        echo -e "${TEMP}°C\t${HEAVY}\t${PASIVO}\t${REPOSO}" | column -t
         ;;
     logs)
-        journalctl --user -u nbfc-guardian.service -n 20 --no-pager
+        journalctl --user -u nbfc-guardian.service -n 30 --no-pager
+        ;;
+    help|--help|-h)
+        echo "NBFC Guardian Pro - CLI"
+        echo ""
+        echo "Usos:"
+        echo "  nbfc-pro heavy on|off    - Modo Heavy (umbral 55°C)"
+        echo "  nbfc-pro pasivo on|off   - Modo Pasivo (sin reinicios >60°C)"
+        echo "  nbfc-pro reposo on|off   - Modo Reposo (ventilador manual)"
+        echo "  nbfc-pro status          - Ver estado actual"
+        echo "  nbfc-pro logs            - Ver logs del servicio"
+        echo ""
         ;;
     *)
-        echo "Uso: nbfc-pro {heavy on|off / status / logs}"
+        echo "Uso: nbfc-pro {heavy on|off | pasivo on|off | reposo on|off | status | logs}"
         ;;
 esac
