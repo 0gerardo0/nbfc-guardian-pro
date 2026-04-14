@@ -1,6 +1,11 @@
 # NBFC Guardian Pro 🛡️
 
-Automated Thermal Protection and Performance Optimization for "Rebel" HP Laptops on Linux.
+Automated Thermal Protection and Performance Optimization for HP Laptops on Linux.
+
+## Requisitos
+
+- [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) - Servicio base de control de ventiladores
+- Usuario con acceso sudo
 
 ## Why?
 Many HP laptops (especially circa 2015) have buggy ACPI/Firmware that ignores OS fan control signals, prioritizing silence over hardware integrity. This leads to massive thermal throttling and system freezes.
@@ -20,22 +25,24 @@ Many HP laptops (especially circa 2015) have buggy ACPI/Firmware that ignores OS
 - **Memory Safety:** Includes wrappers for memory-intensive apps (Electron) using cgroups.
 
 ## Installation
-1. Install [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux).
-2. Copy your profile to `/usr/share/nbfc/configs/`.
-3. Add sudoers rules for `nbfc config` and `nbfc restart`.
-4. Run the installer:
+
+1. Primero instala [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux):
    ```bash
+   git clone https://github.com/nbfc-linux/nbfc-linux.git
+   cd nbfc-linux
    ./install.sh
    ```
 
-Or manual:
+2. Luego instala NBFC Guardian Pro:
    ```bash
-   sudo cp scripts/nbfc-guardian.sh /usr/local/bin/
-   sudo cp scripts/nbfc-pro /usr/local/bin/
-   cp configs/nbfc-guardian.service ~/.config/systemd/user/
-   systemctl --user daemon-reload
-   systemctl --user enable --now nbfc-guardian.service
+   git clone https://github.com/tu-usuario/nbfc-guardian-pro.git
+   cd nbfc-guardian-pro
+   ./install.sh
    ```
+
+## Requisitos Previos
+
+Este proyecto depende de [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) para el control base de ventiladores. El installer verificará que esté instalado antes de proceder.
 
 ## Usage
 ```bash
