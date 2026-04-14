@@ -42,6 +42,22 @@ Many HP laptops (especially circa 2015) have buggy ACPI/Firmware that ignores OS
    ./install.sh
    ```
 
+   El installer te preguntará qué perfil de ventiladores usar. Puedes seleccionar uno de los disponibles en `configs/` o usar el default.
+
+## Perfiles Personalizados
+
+Este proyecto soporta perfiles personalizados de ventiladores. Ver la guía avanzada en [docs/PERFILES.md](docs/PERFILES.md) para aprender a:
+
+- Crear tu propio perfil JSON
+- Usar herramientas como nbfc-discover y nbfc-qt
+- Ajustar umbrales y curvas de ventiladores
+
+### Cambiar perfil después de instalado:
+```bash
+nbfc-pro profile              # Ver perfil actual y disponibles
+nbfc-pro profile Mi_Perfil     # Cambiar a otro perfil
+```
+
 ## Usage
 ```bash
 nbfc-pro status          # Ver estado actual
@@ -52,6 +68,8 @@ nbfc-pro pasivo off      # Desactivar modo Pasivo
 nbfc-pro reposo on       # Modo Reposo (ventilador manual suave)
 nbfc-pro reposo off      # Desactivar modo Reposo
 nbfc-pro logs           # Ver logs del servicio
+nbfc-pro profile        # Ver perfil actual
+nbfc-pro profile NOMBRE # Cambiar perfil
 ```
 
 ## Mode Comparison

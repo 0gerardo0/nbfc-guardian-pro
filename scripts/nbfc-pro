@@ -1,61 +1,95 @@
 #!/bin/bash
+
+PROFILE_FILE=/etc/nbfc-guardian/profile
+
+show_help() {
+    echo NBFC Guardian Pro - CLI
+    echo
+    echo Usos:
+    echo   nbfc-pro heavy on|off    - Modo Heavy umbrales 55 grados
+    echo   nbfc-pro pasivo on|off   - Modo Pasivo sin reinicios mayor a 60 grados
+    echo   nbfc-pro reposo on|off   - Modo Reposo ventilado manual
+    echo   nbfc-pro status          - Ver estado actual
+    echo   nbfc-pro logs            - Ver logs del servicio
+    echo   nbfc-pro profile         - Ver perfil actual
+    echo   nbfc-pro profile NOMBRE  - Cambiar perfil
+    echo
+}
+
 case $1 in
     heavy)
-        if [[ $2 == "on" ]]; then
+        if [[ $2 == on ]]; then
             touch /tmp/nbfc-heavy
             rm -f /tmp/nbfc-reposo /tmp/nbfc-pasivo
-            echo "Modo Heavy ACTIVADO (Umbral: 55°C)"
+            echo Modo Heavy ACTIVADO Umbral 55 grados
         else
             rm -f /tmp/nbfc-heavy
-            echo "Modo Heavy DESACTIVADO (Umbral: 65°C)"
+            echo Modo Heavy DESACTIVADO Umbral 65 grados
         fi
         ;;
     pasivo)
-        if [[ $2 == "on" ]]; then
+        if [[ $2 == on ]]; then
             touch /tmp/nbfc-pasivo
             rm -f /tmp/nbfc-heavy /tmp/nbfc-reposo
-            echo "Modo Pasivo ACTIVADO (Sin reinicios >60°C, cooldown 180s)"
+            echo Modo Pasivo ACTIVADO Sin reinicios mayor a 60 grados cooldown 180s
         else
             rm -f /tmp/nbfc-pasivo
-            echo "Modo Pasivo DESACTIVADO"
+            echo Modo Pasivo DESACTIVADO
         fi
         ;;
     reposo)
-        if [[ $2 == "on" ]]; then
+        if [[ $2 == on ]]; then
             touch /tmp/nbfc-reposo
             rm -f /tmp/nbfc-heavy /tmp/nbfc-pasivo
-            echo "Modo Reposo ACTIVADO (Ventilador suave, sin reinicios)"
+            echo Modo Reposo ACTIVADO Ventilador suave sin reinicios
         else
             rm -f /tmp/nbfc-reposo
-            echo "Modo Reposo DESACTIVADO"
+            echo Modo Reposo DESACTIVADO
         fi
         ;;
     status)
-        TEMP=$(cat /sys/class/thermal/thermal_zone*/temp | sort -nr | head -n1 | cut -c1-2)
-        HEAVY="OFF"
-        PASIVO="OFF"
-        REPOSO="OFF"
-        [[ -f "/tmp/nbfc-heavy" ]] && HEAVY="ON"
-        [[ -f "/tmp/nbfc-pasivo" ]] && PASIVO="ON"
-        [[ -f "/tmp/nbfc-reposo" ]] && REPOSO="ON"
-        echo -e "TEMP\tHEAVY\tPASIVO\tREPOSO"
-        echo -e "${TEMP}°C\t${HEAVY}\t${PASIVO}\t${REPOSO}" | column -t
+        CURRENT_PROFILE=$(cat $PROFILE_FILE 2>/dev/null || echo HP_Preventive)
+        TEMP=$(nbfc status -a 2>/dev/null | grep Temperature | head -1 | awk print{3} | cut -d. -f1)
+        [[ -z $TEMP ]] && TEMP=NA
+        HEAVY=OFF
+        PASIVO=OFF
+        REPOSO=OFF
+        [[ -f /tmp/nbfc-heavy ]] && HEAVY=ON
+        [[ -f /tmp/nbfc-pasivo ]] && PASIVO=ON
+        [[ -f /tmp/nbfc-reposo ]] && REPOSO=ON
+        echo PERFIL: $CURRENT_PROFILE
+        echo TEMP: $TEMP
+        echo -e HEAVY\tPASIVO\tREPOSO
+        echo -e $HEAVY\t$PASIVO\t$REPOSO
         ;;
     logs)
         journalctl --user -u nbfc-guardian.service -n 30 --no-pager
         ;;
+    profile)
+        if [[ -z $2 ]]; then
+            CURRENT=$(cat $PROFILE_FILE 2>/dev/null || echo HP_Preventive)
+            echo Perfil actual: $CURRENT
+            echo Perfiles disponibles en /usr/share/nbfc/configs/
+            ls /usr/share/nbfc/configs/*.json 2>/dev/null | xargs -n1 basename | sed s/.json//
+        else
+            NEW_PROFILE=$2
+            if [[ -f /usr/share/nbfc/configs/$NEW_PROFILE.json ]]; then
+                echo $NEW_PROFILE | sudo tee $PROFILE_FILE > /dev/null
+                echo Cambiando a perfil: $NEW_PROFILE
+                sudo nbfc config -s $NEW_PROFILE
+                sudo nbfc restart
+                echo OK: Perfil cambiado a $NEW_PROFILE
+            else
+                echo ERROR: Perfil $NEW_PROFILE no encontrado
+                ls /usr/share/nbfc/configs/*.json | xargs -n1 basename | sed s/.json//
+                exit 1
+            fi
+        fi
+        ;;
     help|--help|-h)
-        echo "NBFC Guardian Pro - CLI"
-        echo ""
-        echo "Usos:"
-        echo "  nbfc-pro heavy on|off    - Modo Heavy (umbral 55°C)"
-        echo "  nbfc-pro pasivo on|off   - Modo Pasivo (sin reinicios >60°C)"
-        echo "  nbfc-pro reposo on|off   - Modo Reposo (ventilador manual)"
-        echo "  nbfc-pro status          - Ver estado actual"
-        echo "  nbfc-pro logs            - Ver logs del servicio"
-        echo ""
+        show_help
         ;;
     *)
-        echo "Uso: nbfc-pro {heavy on|off | pasivo on|off | reposo on|off | status | logs}"
+        echo Uso: nbfc-pro {heavy on|off | pasivo on|off | reposo on|off | status | logs | profile [NOMBRE]}
         ;;
 esac

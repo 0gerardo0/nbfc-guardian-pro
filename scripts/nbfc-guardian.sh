@@ -1,4 +1,7 @@
 #!/bin/bash
+NBFC_PROFILE_FILE=/etc/nbfc-guardian/profile
+NBFC_PROFILE=${NBFC_PROFILE:-$(cat $NBFC_PROFILE_FILE 2>/dev/null || echo HP_Preventive)}
+
 TEMP_ALTA=65
 TEMP_BAJA=50
 TEMP_HEAVY=60
@@ -49,7 +52,7 @@ while true; do
             if [[ "$CURRENT_TEMP" -gt "$TEMP_PASIVO_REINICIO" ]]; then
                 echo "PASIVO: Temp ${CURRENT_TEMP}°C > ${TEMP_PASIVO_REINICIO}°C - Ignorando, nbfc maneja solo."
             elif [[ "$TIEMPO_TRANSCURRIDO" -ge "$INTERVALO_PASIVO" ]]; then
-                sudo /usr/bin/nbfc config -s "HP_Preventive" && sudo /usr/bin/nbfc restart
+                sudo /usr/bin/nbfc config -s "$NBFC_PROFILE" && sudo /usr/bin/nbfc restart
                 ULTIMO_REINICIO_PASIVO=$TIEMPO_ACTUAL
                 echo "PASIVO: Temp ${CURRENT_TEMP}°C <= ${TEMP_PASIVO_REINICIO}°C - Reinicio para mantener rpm bajas."
             else
@@ -73,11 +76,11 @@ while true; do
             fi
 
             if [[ "$ESTADO" == "REPOSO" ]] || [[ "$TIEMPO_TRANSCURRIDO" -ge "$INTERVALO_GRACIA" ]]; then
-                sudo /usr/bin/nbfc config -s "HP_Preventive" && sudo /usr/bin/nbfc restart
+                sudo /usr/bin/nbfc config -s "$NBFC_PROFILE" && sudo /usr/bin/nbfc restart
                 ULTIMO_REINICIO=$TIEMPO_ACTUAL
                 
                 if [[ "$ESTADO" == "REPOSO" ]]; then
-                    echo "ALERTA: Forzando perfil HP_Preventive a ${CURRENT_TEMP}°C."
+                    echo "ALERTA: Forzando perfil $NBFC_PROFILE a ${CURRENT_TEMP}°C."
                     ESTADO="ENFRIANDO"
                 fi
             fi
