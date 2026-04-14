@@ -2,10 +2,12 @@
 
 Automated Thermal Protection and Performance Optimization for HP Laptops on Linux.
 
-## Requisitos
+## Requisitos Previos
 
 - [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) - Servicio base de control de ventiladores
 - Usuario con acceso sudo
+
+Este proyecto depende de nbfc-linux para el control base de ventiladores. El installer verificará que esté instalado antes de proceder.
 
 ## Why?
 Many HP laptops (especially circa 2015) have buggy ACPI/Firmware that ignores OS fan control signals, prioritizing silence over hardware integrity. This leads to massive thermal throttling and system freezes.
@@ -35,14 +37,10 @@ Many HP laptops (especially circa 2015) have buggy ACPI/Firmware that ignores OS
 
 2. Luego instala NBFC Guardian Pro:
    ```bash
-   git clone https://github.com/tu-usuario/nbfc-guardian-pro.git
+   git clone https://github.com/0gerardo0/nbfc-guardian-pro.git
    cd nbfc-guardian-pro
    ./install.sh
    ```
-
-## Requisitos Previos
-
-Este proyecto depende de [nbfc-linux](https://github.com/nbfc-linux/nbfc-linux) para el control base de ventiladores. El installer verificará que esté instalado antes de proceder.
 
 ## Usage
 ```bash
