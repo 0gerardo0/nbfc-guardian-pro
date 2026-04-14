@@ -85,8 +85,12 @@ echo       OK: Configuracion copiada a $CONFIG_DST/$CONFIG_FILE
 
 echo
 echo [6/8] Configurando sudoers NOPASSWD...
-SUDOERS_LINE=$(whoami)' ALL=(root) NOPASSWD: /usr/bin/nbfc config -s *, /usr/bin/nbfc restart, /usr/bin/nbfc set -s *'
-echo $SUDOERS_LINE | sudo tee $SUDOERS_FILE > /dev/null
+SUDOERS_CONTENT=$(whoami)' ALL=(root) NOPASSWD: /usr/bin/nbfc config -s *, /usr/bin/nbfc restart, /usr/bin/nbfc set -s *'
+
+# Crear archivo temporal y moverlo
+TMP_SUDOERS=/tmp/nbfc-guardian-temp
+echo $SUDOERS_CONTENT > $TMP_SUDOERS
+sudo mv $TMP_SUDOERS $SUDOERS_FILE
 sudo chmod 440 $SUDOERS_FILE
 echo       OK: sudoers configurado para cualquier perfil
 
